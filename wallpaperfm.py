@@ -239,9 +239,24 @@ def getAlbumCovers(Username='Koant',Past='overall',cache='wp_cache',ExcludedList
 	
 	# Make a local copy of the charts
 	if Local=='no':	
+			#url='http://ws.audioscrobbler.com//2.0/?method=user.gettopalbums&user='+Username+'&api_key='+API_KEY+'&format=json'
 		try:
-			print "Downloading from ",url
-			download(url,cache+os.sep+'charts_'+Username+'.json')
+			params = urllib.urlencode({'method' : 'user.getTopAlbums',
+	               'user' : Username,
+	               'api_key' : API_KEY,
+	               'format':'json'})
+
+			header = {"user-agent" : "myapp/1.0",
+			          "Content-type": "application/x-www-form-urlencoded"}
+
+			lastfm = httplib.HTTPConnection("ws.audioscrobbler.com")
+
+			lastfm.request("POST","/2.0/?",params,header)
+
+			response = lastfm.getresponse()
+			print response.read()
+			with open(cache+os.sep+'charts_'+Username+'.json', 'w') as outfile:
+    			json.dump(data, outfile)
 		except Exception,err:
 			print "#"*20
 			print "I couldn't download the profile or make a local copy of it."
@@ -252,11 +267,10 @@ def getAlbumCovers(Username='Koant',Past='overall',cache='wp_cache',ExcludedList
 	# Parse image filenames
 	print "Parsing..."
 	try:
-		data=open(cache+os.sep+'charts_'+Username+'.json','rb')
-		jsondoc=json.load(data)
-		print data
+		with open(cache+os.sep+'charts_'+Username+'.json','rb') as json_data:
+    		jsondoc = json.load(json_data)
+    		print(jsondoc)
 		#xmldoc=minidom.parse(data)
-		data.close()
 	except Exception,err:
 		print '#'*20
 		print "Error while parsing your profile. Your username might be misspelt or your charts empty."

@@ -8,7 +8,7 @@ import random
 import json
 import requests
 
-API_KEY='METER API KEY AQUI'
+API_KEY='API_KEY'
 Username='fayanp'
 
 def test():
@@ -28,16 +28,18 @@ def test():
 		lastfm.request("POST","/2.0/?",params,header)
 
 		response = lastfm.getresponse()
-		print response.read()
+		with open('charts_'+Username+'.json', 'w') as outfile:
+    			json.dump(response.read(), outfile)
+		#print response.read()
 	except Exception,err:
 		print "#"*20
 		print "I couldn't download the profile or make a local copy of it."
 		print "#"*20
 
 	try:
-		data=open('charts_'+Username+'.json','rb')
-		jsondoc=json.load(data)
-		print data
+		with open('charts_'+Username+'.json','rb') as json_data:
+    			jsondoc = json.load(json_data)
+    			print(jsondoc)
 		#xmldoc=minidom.parse(data)
 		data.close()
 	except Exception,err:
