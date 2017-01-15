@@ -11,9 +11,9 @@
 # Update on 02 Aug 2010: added filelist.reverse() # changed on 02Aug2010 on l.285
 
 __author__ = 'Koant (http://www.last.fm/user/Koant)'
-__version__ = '$02 Aug 2010$'
-__date__ = '$Date: 2008/07/17  $'
-__copyright__ = 'Copyright (c) 2008 Koant'
+__version__ = '$15 Jan 2017$'
+__date__ = '$Date: 2017/01/15  $'
+__copyright__ = 'Copyright (c) 2017 Koant'
 __license__ = 'GPL'
 
 
@@ -27,6 +27,9 @@ import random
 import Image
 import ImageDraw
 import ImageFilter
+
+API_KEY='METER API KEY AQUI'
+
 
 def usage():
 	print "Quick examples"
@@ -226,7 +229,8 @@ def getAlbumCovers(Username='Koant',Past='overall',cache='wp_cache',ExcludedList
 	else:
 		tpe=''
 
-	url='http://ws.audioscrobbler.com/1.0/user/'+Username+'/topalbums.xml?limit='+str(Limit)+tpe
+	url='http://ws.audioscrobbler.com//2.0/?method=user.gettopalbums&user='+Username+'&api_key='+API_KEY+'&format=json'
+	#url='http://ws.audioscrobbler.com/1.0/user/'+Username+'/topalbums.xml?limit='+str(Limit)+tpe
 	
 	# make cache if doesn't exist
 	if not os.path.exists(cache):
@@ -237,19 +241,21 @@ def getAlbumCovers(Username='Koant',Past='overall',cache='wp_cache',ExcludedList
 	if Local=='no':	
 		try:
 			print "Downloading from ",url
-			download(url,cache+os.sep+'charts_'+Username+'.xml')
+			download(url,cache+os.sep+'charts_'+Username+'.json')
 		except Exception,err:
 			print "#"*20
 			print "I couldn't download the profile or make a local copy of it."
 			print "#"*20
 	else:
-		print "Reading from local copy:  ",cache+os.sep+'charts_'+Username+'.xml'
+		print "Reading from local copy:  ",cache+os.sep+'charts_'+Username+'.json'
 
 	# Parse image filenames
 	print "Parsing..."
 	try:
-		data=open(cache+os.sep+'charts_'+Username+'.xml','rb')
-		xmldoc=minidom.parse(data)
+		data=open(cache+os.sep+'charts_'+Username+'.json','rb')
+		jsondoc=json.load(data)
+		print data
+		#xmldoc=minidom.parse(data)
 		data.close()
 	except Exception,err:
 		print '#'*20
@@ -257,7 +263,7 @@ def getAlbumCovers(Username='Koant',Past='overall',cache='wp_cache',ExcludedList
 		print '#'*20		
 		sys.exit()
 
-	filelist=[imfile.firstChild.data for imfile in xmldoc.getElementsByTagName('large')]
+	filelist=[imfile.firstChild.data for imfile in jsondoc.getElementsByTagName('large')]
 
 
 
